@@ -1,0 +1,61 @@
+{
+    "SysConfig":
+        {
+			"general":
+					{
+					    "USE_DEFAULT"					:1,
+						"MAC_ADDR"						:"08:00:28:11:22:33",
+						"StorageCapacityBytes"			:"4194304",
+						"Mode"				  			:"production",
+						"EnableReturnToFactory"			:"defaults_and_image",
+						"ReturnToFactoryGPIO"			:"0"
+					},
+			"sys_device":
+					{
+						"PHY_CAL_MODE"						: "0",
+						"AP_TX_POWER_LEVEL"					: "0",
+						"STA_TX_POWER_LEVEL"				: "0"
+					},
+			"sys_role_gen":
+					{
+						"DEVICE_URN"						:"mysimplelinkkokokko",	
+						"START_ROLE"						:"2",
+						"COUNTRY_CODE"						:"EU",	
+						"AUTO_PROV_EXTERNAL_CONFIRMATION"   :"0",
+					    "AUTOSTART"							:"1",
+						"USEFASTCONNECT"					:"0",
+						"AUTOPROVISIONING"					:"1",
+						"CONNECTTOANYP2P"					:"0"
+					},
+			"sys_role_ap":
+					{
+						"AP_STATIC_IP"						:"10.123.45.1",
+						"AP_DEFAULT_GATEWAY"				:"10.123.45.1",
+						"AP_IPV4_DNS_SERVER"                :"10.123.45.1",
+						"SSID"								:"mysimplelink",
+						"SECURITY"							:"0",
+						"PASSWORD"							:"",
+						"HIDDEN_SSID"						:"0",
+						"CHANNEL"							:"1",
+						"MAX_STT"							:"4",
+						"AP_DHCP_SERVER_START_IP_ADDRESS"   :"10.123.45.2",
+						"AP_DHCP_SERVER_LAST_IP_ADDRESS"    :"10.123.45.254",
+						"AP_DHCP_SERVER_LEASE_TIME"         :"24"
+					},
+			"sys_role_sta":
+					{
+						"STA_IP_MODE"						: "True",
+						"STA_STATIC_IP"						:"192.168.1.101",	
+						"STA_SUBNET_MASK"					:"255.255.255.0",
+						"STA_DEFAULT_GATEWAY"				:"192.168.1.31",
+						"STA_IPV4_DNS_SERVER"				:"192.168.1.31" 
+					},
+			"net_app":
+					{
+						"P2P_CLS_START_APPS"				:5,			
+						"P2P_GO_START_APPS"					:15,			
+						"STA_START_APPS"					:5,			
+						"AP_START_APPS"						:15	
+					}
+        }    
+}

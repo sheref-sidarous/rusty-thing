@@ -1,0 +1,29 @@
+
+{
+    "name": "simplelink_cc32xx_sdk",
+    "displayName": "SimpleLink CC32XX SDK",
+    "version": "4_20_00_07",
+    "documentationPath": "../docs",
+    "includePaths": [
+        "../source",
+        "."
+    ],
+    "components": [
+        "/ti/drivers/drivers.component.js",
+        "/ti/net/ns.component.js",
+        "/ti/utils/build/build.component.js",
+        "/ti/utils/rov/rov.component.js",
+        "/ti/utils/runtime/runtime.component.js",
+        "/ti/drivers/net/wifi/product.syscfg.js",
+        "/ti/drivers/net/imagecreator/image.component.js"
+    ],
+    "devices": [
+        "CC3220S",
+        "CC3220SF",
+        "CC3235S",
+        "CC3235SF"
+    ],
+    "minToolVersion": "1.5.0",
+    "templates": [],
+    "includesCCXXImageComponents": true
+}

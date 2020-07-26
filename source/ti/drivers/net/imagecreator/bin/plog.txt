@@ -1,0 +1,2 @@
+start /wait cmd.exe /c C:\ti\simplelink_cc32xx_sdk_3_30_01_02\source\ti\drivers\net\imagecreator\bin\/program__v10.bat C:\syscfg\Output\3235SF\CC3235SF_v1.sli "" false false "" 
+-1 
