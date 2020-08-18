@@ -48,10 +48,17 @@
 /* TI-DRIVERS Header files */
 #include "ti_drivers_config.h"
 
+#include "debug_if.h"
+
+
 extern void * mainThread(void *arg0);
 
 /* Stack size in bytes */
 #define THREADSTACKSIZE   4096
+
+void heart_beat(void) {
+    LOG_TRACE("Rust Hearbeat <3\r\n");
+}
 
 /*
  *  ======== main ========
@@ -103,6 +110,9 @@ int main(void)
             ;
         }
     }
+
+    void rusty_entry(void);
+    rusty_entry();
 
     /* Start the FreeRTOS scheduler */
     vTaskStartScheduler();

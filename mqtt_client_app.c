@@ -668,12 +668,12 @@ MQTT_DEMO:
 
         if(queueElement.event == APP_MQTT_PUBLISH){
 
-            LOG_TRACE("APP_MQTT_PUBLISH\r\n");
+            LOG_TRACE("APP_MQTT_PUBLISH %d\r\n", 13);
 
             MQTT_IF_Publish(mqttClientHandle,
                             "cc32xx/ToggleLED1",
-                            "LED 1 toggle\r\n",
-                            strlen("LED 1 toggle\r\n"),
+                            "LED 1 togglez\r\n",
+                            strlen("LED 1 togglez\r\n"),
                             MQTT_QOS_2);
 
             GPIO_clearInt(CONFIG_GPIO_BUTTON_0);

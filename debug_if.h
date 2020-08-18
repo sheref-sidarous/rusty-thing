@@ -58,8 +58,7 @@ enum
 };
 
 #define IF_NAME     "GEN"
-#define IF_SEVERITY E_INFO
-
+#define IF_SEVERITY E_TRACE
 
 #if (D_DEBUG_METHOD == D_UART_PRINT)
     #include "uart_term.h"

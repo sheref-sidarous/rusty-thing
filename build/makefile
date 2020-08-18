@@ -8,7 +8,7 @@ CC = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-gcc"
 LNK = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-gcc"
 HEX = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-objcopy"
 
-OBJECTS = mqtt_client_app.obj mqtt_if.obj network_if.obj uart_term.obj ti_drivers_net_wifi_config.obj ti_net_config.obj ti_drivers_config.obj freertos_main_freertos.obj
+OBJECTS = mqtt_client_app.obj mqtt_if.obj network_if.obj uart_term.obj ti_drivers_net_wifi_config.obj ti_net_config.obj ti_drivers_config.obj freertos_main_freertos.obj shim.obj
 
 NAME = mqtt_client
 
@@ -48,10 +48,11 @@ LFLAGS = "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/mqtt/lib" \
     -l:ti/drivers/lib/drivers_cc32xx.am4g \
     -l:third_party/fatfs/lib/gcc/m4/fatfs.a \
     "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/drivers/net/wifi" \
-    -l:gcc/rtos/simplelink.a \
+    -L. -l:gcc/rtos/simplelink.a \
     "-L$(KERNEL_BUILD)/gcc" \
     -l:freertos.lib \
     -l:ti/devices/cc32xx/driverlib/gcc/Release/driverlib.a \
+    -l:librusty_addtion.a \
     -march=armv7e-m \
     -mthumb \
     -nostartfiles \
@@ -109,6 +110,10 @@ ti_net_config.obj: ti_net_config.c ti_drivers_config.h
 	@ $(CC) $(CFLAGS) $< -c -o $@
 
 ti_drivers_config.obj: ti_drivers_config.c ti_drivers_config.h
+	@ echo Building $@
+	@ $(CC) $(CFLAGS) $< -c -o $@
+
+shim.obj: ../shim.c
 	@ echo Building $@
 	@ $(CC) $(CFLAGS) $< -c -o $@
 
