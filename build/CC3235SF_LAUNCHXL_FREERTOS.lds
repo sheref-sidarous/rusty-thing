@@ -40,13 +40,13 @@ MEMORY
 }
 
 REGION_ALIAS("REGION_HDR", FLASH_HDR);
-REGION_ALIAS("REGION_TEXT", FLASH);
+REGION_ALIAS("REGION_TEXT", SRAM);
 REGION_ALIAS("REGION_BSS", SRAM);
 REGION_ALIAS("REGION_DATA", SRAM);
 REGION_ALIAS("REGION_STACK", SRAM);
 REGION_ALIAS("REGION_HEAP", SRAM);
-REGION_ALIAS("REGION_ARM_EXIDX", FLASH);
-REGION_ALIAS("REGION_ARM_EXTAB", FLASH);
+REGION_ALIAS("REGION_ARM_EXIDX", SRAM);
+REGION_ALIAS("REGION_ARM_EXTAB", SRAM);
 
 SECTIONS {
 
@@ -57,7 +57,7 @@ SECTIONS {
     PROVIDE (_resetVecs_base_address =
         DEFINED(_resetVecs_base_address) ? _resetVecs_base_address : 0x01000800);
 
-    .resetVecs (_resetVecs_base_address) : AT (_resetVecs_base_address) {
+    .resetVecs : {
         KEEP (*(.resetVecs))
     } > REGION_TEXT
 
