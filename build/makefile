@@ -66,6 +66,7 @@ LFLAGS = "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/mqtt/lib" \
     --specs=nano.specs
 
 all: $(NAME).bin
+	make -C ../freertos all
 
 $(KERNEL_BUILD)/gcc/freertos.lib:
 	@ $(ECHOBLANKLINE)
@@ -120,6 +121,7 @@ shim.obj: ../shim.c
 $(NAME).out: $(OBJECTS) $(KERNEL_BUILD)/gcc/freertos.lib
 	@ echo linking $@
 	@ $(LNK)  $(OBJECTS)  $(LFLAGS) -o $(NAME).out
+	arm-none-eabi-objdump -S $(NAME).out > $(NAME).dis
 
 $(NAME).bin: $(NAME).out
 	@ echo building $@
