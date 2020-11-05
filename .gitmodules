@@ -1,0 +1,3 @@
+[submodule "rust/FreeRTOS-rust"]
+	path = rust/FreeRTOS-rust
+	url = https://github.com/lobaro/FreeRTOS-rust.git
