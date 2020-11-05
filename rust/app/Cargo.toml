@@ -1,0 +1,12 @@
+[package]
+name = "rust-app"
+version = "0.1.0"
+authors = ["Sheref Sidarous <sherefyounan@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "rusty_addtion"
+crate-type = ["staticlib"] # Creates static lib
+
+[dependencies]
+freertos-rust = {path = "../FreeRTOS-rust/freertos-rust"}
