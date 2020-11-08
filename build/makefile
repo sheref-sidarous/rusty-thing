@@ -33,14 +33,23 @@ CFLAGS = -I.. \
     "-I$(GCC_ARMCOMPILER)/arm-none-eabi/include/newlib-nano" \
     "-I$(GCC_ARMCOMPILER)/arm-none-eabi/include"
 
-LFLAGS = "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/mqtt/lib" \
+LFLAGS = \
+    -march=armv7e-m \
+    -mthumb \
+    -nostartfiles \
+    -static \
+    -Wl,--gc-sections \
+    --specs=nano.specs \
+    -Wl,-T,CC3235SF_LAUNCHXL_FREERTOS.lds \
+    "-Wl,-Map,$(NAME).map"
+
+LIBS = \
+    "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/mqtt/lib" \
     -l:gcc/m4/mqtt_release.a \
     "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/lib" \
     -l:gcc/m4/slnetsock_release.a \
     "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/drivers/net/wifi/slnetif" \
     -l:gcc/Release/slnetifwifi.a \
-    -Wl,-T,CC3235SF_LAUNCHXL_FREERTOS.lds \
-    "-Wl,-Map,$(NAME).map" \
     "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source" \
     -l:ti/display/lib/display.am4g \
     -l:ti/grlib/lib/gcc/m4/grlib.a \
@@ -53,17 +62,11 @@ LFLAGS = "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/mqtt/lib" \
     -l:freertos.lib \
     -l:ti/devices/cc32xx/driverlib/gcc/Release/driverlib.a \
     -l:librusty_addtion.a \
-    -march=armv7e-m \
-    -mthumb \
-    -nostartfiles \
-    -static \
-    -Wl,--gc-sections \
     "-L$(GCC_ARMCOMPILER)/arm-none-eabi/lib/thumb/v7e-m/nofp" \
     -lgcc \
     -lc \
     -lm \
     -lnosys \
-    --specs=nano.specs
 
 all: $(NAME).bin
 	make -C ../freertos all
@@ -120,7 +123,7 @@ shim.obj: ../shim.c
 
 $(NAME).out: $(OBJECTS) $(KERNEL_BUILD)/gcc/freertos.lib
 	@ echo linking $@
-	@ $(LNK)  $(OBJECTS)  $(LFLAGS) -o $(NAME).out
+	@ $(LNK)  $(OBJECTS) $(LFLAGS) $(LIBS) -o $(NAME).out
 	arm-none-eabi-objdump -S $(NAME).out > $(NAME).dis
 
 $(NAME).bin: $(NAME).out
