@@ -44,6 +44,7 @@ LFLAGS = \
     "-Wl,-Map,$(NAME).map"
 
 LIBS = \
+    -l:librusty_addtion.a \
     "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/mqtt/lib" \
     -l:gcc/m4/mqtt_release.a \
     "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/lib" \
@@ -61,12 +62,12 @@ LIBS = \
     "-L$(KERNEL_BUILD)/gcc" \
     -l:freertos.lib \
     -l:ti/devices/cc32xx/driverlib/gcc/Release/driverlib.a \
-    -l:librusty_addtion.a \
     "-L$(GCC_ARMCOMPILER)/arm-none-eabi/lib/thumb/v7e-m/nofp" \
     -lgcc \
     -lc \
     -lm \
     -lnosys \
+
 
 all: $(NAME).bin
 	make -C ../freertos all
