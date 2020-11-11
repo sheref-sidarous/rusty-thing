@@ -56,8 +56,14 @@ extern void * mainThread(void *arg0);
 /* Stack size in bytes */
 #define THREADSTACKSIZE   4096
 
-void heart_beat(void) {
-    LOG_TRACE("Rust Hearbeat <3\r\n");
+extern UART_Handle uartHandle;
+
+void raw_print(uint8_t* str, uint32_t len)
+{
+    if(uartHandle != NULL)
+    {
+        UART_writePolling(uartHandle, str, len);
+    }
 }
 
 /*

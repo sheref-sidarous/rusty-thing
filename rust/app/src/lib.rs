@@ -18,17 +18,24 @@ fn panic_hndlr(_info: &PanicInfo) -> ! {
 fn alloc_error(_layout: Layout) -> ! {
     loop {}
 }
+
 extern {
-    pub fn heart_beat();
+    pub fn raw_print(a : *const u8, len:u32);
 }
+
+fn print(message : &str) {
+    unsafe {
+        raw_print(message.as_ptr(), message.len() as u32);
+    }
+}
+
+
 
 #[no_mangle]
 pub extern "C" fn rusty_entry() {
     Task::new().name("hello").stack_size(1024).start(|| {
         loop {
-            unsafe {
-                heart_beat();
-            }
+            print("inside Rust Hearbeat <3\r\n");
             CurrentTask::delay(Duration::ms(1000));
         }
     }).unwrap();

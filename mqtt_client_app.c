@@ -555,12 +555,14 @@ int WifiInit(){
     return ret;
 }
 
+UART_Handle uartHandle = NULL;
+
 void mainThread(void * args){
 
     int32_t ret;
     mq_attr attr;
     Timer_Params params;
-    UART_Handle uartHandle;
+
     struct msgQueue queueElement;
     MQTTClient_Handle mqttClientHandle;
 
