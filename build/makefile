@@ -44,7 +44,7 @@ LFLAGS = \
     "-Wl,-Map,$(NAME).map"
 
 LIBS = \
-    -l:librusty_addtion.a \
+    -l:../rust/app/target/thumbv7m-none-eabi/debug/librust_app.a \
     "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/mqtt/lib" \
     -l:gcc/m4/mqtt_release.a \
     "-L$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/net/lib" \

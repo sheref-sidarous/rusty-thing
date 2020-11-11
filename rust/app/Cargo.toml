@@ -5,7 +5,7 @@ authors = ["Sheref Sidarous <sherefyounan@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "rusty_addtion"
+name = "rust_app"
 crate-type = ["staticlib"] # Creates static lib
 
 [dependencies]
