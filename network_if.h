@@ -58,16 +58,8 @@ extern "C"
 /* properties SimpleLink device will connect to following AP when application */
 /* is executed.                                                               */
 
-/* AP SSID                                                                    */
-#define SSID_NAME               "GuestNetwork"
-/* Security type (OPEN or WEP or WPA)                                         */
-#define SECURITY_TYPE           SL_WLAN_SEC_TYPE_OPEN
-/* Password of the secured AP                                                 */
-#define SECURITY_KEY            ""
 
-#define SSID_AP_MODE            "<ap-ssid>"
-#define SEC_TYPE_AP_MODE        SL_WLAN_SEC_TYPE_OPEN
-#define PASSWORD_AP_MODE        ""
+#include ".network_credintials"
 
 /* Loop forever, user can change it as per application's requirement          */
 #define LOOP_FOREVER() \
