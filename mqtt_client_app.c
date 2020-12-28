@@ -93,7 +93,7 @@ extern int32_t ti_net_SlNet_initConfig();
 
 #ifndef MQTT_SECURE_CLIENT
 #define MQTT_CONNECTION_FLAGS           MQTTCLIENT_NETCONN_URL
-#define MQTT_CONNECTION_ADDRESS         "mqtt.eclipse.org"
+#define MQTT_CONNECTION_ADDRESS         "192.168.1.8" //"mqtt.eclipse.org"
 #define MQTT_CONNECTION_PORT_NUMBER     1883
 #else
 #define MQTT_CONNECTION_FLAGS           MQTTCLIENT_NETCONN_IP4 | MQTTCLIENT_NETCONN_SEC
@@ -563,7 +563,7 @@ void mainThread(void * args){
     mq_attr attr;
     Timer_Params params;
 
-    struct msgQueue queueElement;
+    //struct msgQueue queueElement;
     MQTTClient_Handle mqttClientHandle;
 
     uartHandle = InitTerm();
@@ -611,31 +611,11 @@ void mainThread(void * args){
         while(1);
     }
 
-    GPIO_write(CONFIG_GPIO_LED_0, CONFIG_GPIO_LED_OFF);
-    GPIO_write(CONFIG_GPIO_LED_1, CONFIG_GPIO_LED_OFF);
-    GPIO_write(CONFIG_GPIO_LED_2, CONFIG_GPIO_LED_OFF);
-
-    params.period = 1500000;
-    params.periodUnits = Timer_PERIOD_US;
-    params.timerMode = Timer_ONESHOT_CALLBACK;
-    params.timerCallback = (Timer_CallBackFxn)timerCallback;
-
-    timer0 = Timer_open(CONFIG_TIMER_0, &params);
-    if (timer0 == NULL) {
-        LOG_ERROR("failed to initialize timer\r\n");
-        while(1);
-    }
-
-MQTT_DEMO:
 
     ret = MQTT_IF_Init(mqttInitParams);
     if(ret < 0){
         while(1);
     }
-
-#ifdef MQTT_SECURE_CLIENT
-    setTime();
-#endif
 
     /*
      * In case a persistent session is being used, subscribe is called before connect so that the module
@@ -662,78 +642,9 @@ MQTT_DEMO:
     // wait for CONNACK
     while(connected == 0);
 
-    GPIO_enableInt(CONFIG_GPIO_BUTTON_0);
+    LOG_INFO("Connected !r\n");
 
-    while(1){
-
-        mq_receive(appQueue, (char*)&queueElement, sizeof(struct msgQueue), NULL);
-
-        if(queueElement.event == APP_MQTT_PUBLISH){
-
-            LOG_TRACE("APP_MQTT_PUBLISH %d\r\n", 13);
-
-            MQTT_IF_Publish(mqttClientHandle,
-                            "cc32xx/ToggleLED1",
-                            "LED 1 togglez\r\n",
-                            strlen("LED 1 togglez\r\n"),
-                            MQTT_QOS_2);
-
-            GPIO_clearInt(CONFIG_GPIO_BUTTON_0);
-            GPIO_enableInt(CONFIG_GPIO_BUTTON_0);
-        }
-        else if(queueElement.event == APP_MQTT_CON_TOGGLE){
-
-            LOG_TRACE("APP_MQTT_CON_TOGGLE %d\r\n", connected);
-
-
-            if(connected){
-                ret = MQTT_IF_Disconnect(mqttClientHandle);
-                if(ret >= 0){
-                    connected = 0;
-                }
-            }
-            else{
-                mqttClientHandle = MQTT_IF_Connect(mqttClientParams, mqttConnParams, MQTT_EventCallback);
-                if((int)mqttClientHandle >= 0){
-                    connected = 1;
-                }
-            }
-        }
-        else if(queueElement.event == APP_MQTT_DEINIT){
-            break;
-        }
-        else if(queueElement.event == APP_BTN_HANDLER){
-
-            struct msgQueue queueElement;
-
-            ret = detectLongPress();
-            if(ret == 0){
-
-                LOG_TRACE("APP_BTN_HANDLER SHORT PRESS\r\n");
-                queueElement.event = APP_MQTT_CON_TOGGLE;
-            }
-            else{
-
-                LOG_TRACE("APP_BTN_HANDLER LONG PRESS\r\n");
-                queueElement.event = APP_MQTT_DEINIT;
-            }
-
-            ret = mq_send(appQueue, (const char*)&queueElement, sizeof(struct msgQueue), 0);
-            if(ret < 0){
-                LOG_ERROR("msg queue send error %d", ret);
-            }
-        }
-    }
-
-    deinit = 1;
-    if(connected){
-        MQTT_IF_Disconnect(mqttClientHandle);
-    }
-    MQTT_IF_Deinit();
-
-    LOG_INFO("looping the MQTT functionality of the example for demonstration purposes only\r\n");
-    sleep(2);
-    goto MQTT_DEMO;
+    while(1);
 }
 
 //*****************************************************************************
