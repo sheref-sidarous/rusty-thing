@@ -93,7 +93,7 @@ extern int32_t ti_net_SlNet_initConfig();
 
 #ifndef MQTT_SECURE_CLIENT
 #define MQTT_CONNECTION_FLAGS           MQTTCLIENT_NETCONN_URL
-#define MQTT_CONNECTION_ADDRESS         "192.168.1.8" //"mqtt.eclipse.org"
+#define MQTT_CONNECTION_ADDRESS         "192.168.1.7" //"mqtt.eclipse.org"
 #define MQTT_CONNECTION_PORT_NUMBER     1883
 #else
 #define MQTT_CONNECTION_FLAGS           MQTTCLIENT_NETCONN_IP4 | MQTTCLIENT_NETCONN_SEC
@@ -101,10 +101,9 @@ extern int32_t ti_net_SlNet_initConfig();
 #define MQTT_CONNECTION_PORT_NUMBER     8883
 #endif
 
-mqd_t appQueue;
 int connected;
 int deinit;
-Timer_Handle timer0;
+
 int longPress = 0;
 
 /* Client ID                                                                 */
@@ -299,39 +298,6 @@ void timerLEDCallback(Timer_Handle myHandle)
     GPIO_toggle(CONFIG_GPIO_LED_0);
 }
 
-void pushButtonPublishHandler(uint_least8_t index)
-{
-    int ret;
-    struct msgQueue queueElement;
-
-    GPIO_disableInt(CONFIG_GPIO_BUTTON_0);
-
-    queueElement.event = APP_MQTT_PUBLISH;
-    ret = mq_send(appQueue, (const char*)&queueElement, sizeof(struct msgQueue), 0);
-    if(ret < 0){
-        LOG_ERROR("msg queue send error %d", ret);
-    }
-}
-
-void pushButtonConnectionHandler(uint_least8_t index)
-{
-    int ret;
-    struct msgQueue queueElement;
-
-    GPIO_disableInt(CONFIG_GPIO_BUTTON_1);
-
-    ret = Timer_start(timer0);
-    if(ret < 0){
-        LOG_ERROR("failed to start the timer\r\n");
-    }
-
-    queueElement.event = APP_BTN_HANDLER;
-
-    ret = mq_send(appQueue, (const char*)&queueElement, sizeof(struct msgQueue), 0);
-    if(ret < 0){
-        LOG_ERROR("msg queue send error %d", ret);
-    }
-}
 
 int detectLongPress(){
 
@@ -341,8 +307,6 @@ int detectLongPress(){
         buttonPressed = GPIO_read(CONFIG_GPIO_BUTTON_1);
     }while(buttonPressed && !longPress);
 
-    // disabling the timer in case the callback has not yet triggered to avoid updating longPress
-    Timer_stop(timer0);
 
     if(longPress == 1){
         longPress = 0;
@@ -404,12 +368,13 @@ void MQTT_EventCallback(int32_t event){
             connected = 0;
 
             LOG_INFO("MQTT_EVENT_SERVER_DISCONNECT\r\n");
-
+#if 0
             queueElement.event = APP_MQTT_CON_TOGGLE;
             int res = mq_send(appQueue, (const char*)&queueElement, sizeof(struct msgQueue), 0);
             if(res < 0){
                 LOG_ERROR("msg queue send error %d", res);
             }
+            #endif
             break;
         }
 
@@ -517,16 +482,9 @@ int WifiInit(){
 
     SetClientIdNamefromMacAddress();
 
-    GPIO_toggle(CONFIG_GPIO_LED_2);
-
     security_params.Key = (signed char*)SECURITY_KEY;
     security_params.KeyLen = strlen(SECURITY_KEY);
     security_params.Type = SECURITY_TYPE;
-
-    ret = Timer_start(timer0);
-    if(ret < 0){
-        LOG_ERROR("failed to start the timer\r\n");
-    }
 
     ret = Network_IF_ConnectAP(SSID_NAME, security_params);
     if(ret < 0){
@@ -549,13 +507,10 @@ int WifiInit(){
         }
     }
 
-    Timer_stop(timer0);
-    Timer_close(timer0);
-
     return ret;
 }
 
-UART_Handle uartHandle = NULL;
+
 
 void mainThread(void * args){
 
@@ -566,7 +521,7 @@ void mainThread(void * args){
     //struct msgQueue queueElement;
     MQTTClient_Handle mqttClientHandle;
 
-    uartHandle = InitTerm();
+    UART_Handle uartHandle = InitTerm();
     UART_control(uartHandle, UART_CMD_RXDISABLE, NULL);
 
     GPIO_init();
@@ -577,40 +532,18 @@ void mainThread(void * args){
     if(0 != ret)
     {
         LOG_ERROR("Failed to initialize SlNetSock\n\r");
-    }
-    GPIO_write(CONFIG_GPIO_LED_0, CONFIG_GPIO_LED_OFF);
-    GPIO_write(CONFIG_GPIO_LED_1, CONFIG_GPIO_LED_OFF);
-    GPIO_write(CONFIG_GPIO_LED_2, CONFIG_GPIO_LED_OFF);
-
-    GPIO_setCallback(CONFIG_GPIO_BUTTON_0, pushButtonPublishHandler);
-    GPIO_setCallback(CONFIG_GPIO_BUTTON_1, pushButtonConnectionHandler);
-
-
-    // configuring the timer to toggle an LED until the AP is connected
-    Timer_Params_init(&params);
-    params.period = 1000000;
-    params.periodUnits = Timer_PERIOD_US;
-    params.timerMode = Timer_CONTINUOUS_CALLBACK;
-    params.timerCallback = (Timer_CallBackFxn)timerLEDCallback;
-
-    timer0 = Timer_open(CONFIG_TIMER_0, &params);
-    if (timer0 == NULL) {
-        LOG_ERROR("failed to initialize timer\r\n");
-        while(1);
-    }
-
-    attr.mq_maxmsg = 10;
-    attr.mq_msgsize = sizeof(struct msgQueue);
-    appQueue = mq_open("appQueue", O_CREAT, 0, &attr);
-    if(((int)appQueue) <= 0){
         while(1);
     }
 
     ret = WifiInit();
     if(ret < 0){
+        LOG_ERROR("Failed to initialize WiFi\n\r");
         while(1);
     }
 
+    GPIO_write(CONFIG_GPIO_LED_0, CONFIG_GPIO_LED_OFF);
+    GPIO_write(CONFIG_GPIO_LED_1, CONFIG_GPIO_LED_OFF);
+    GPIO_write(CONFIG_GPIO_LED_2, CONFIG_GPIO_LED_OFF);
 
     ret = MQTT_IF_Init(mqttInitParams);
     if(ret < 0){
