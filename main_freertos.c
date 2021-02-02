@@ -56,15 +56,6 @@ extern void * mainThread(void *arg0);
 /* Stack size in bytes */
 #define THREADSTACKSIZE   4096
 
-extern UART_Handle uartHandle;
-
-void raw_print(uint8_t* str, uint32_t len)
-{
-    if(uartHandle != NULL)
-    {
-        UART_writePolling(uartHandle, str, len);
-    }
-}
 
 /*
  *  ======== main ========
@@ -107,6 +98,7 @@ int main(void)
         }
     }
 
+#if 0
     retc = pthread_create(&thread, &pAttrs, mainThread, NULL);
     if(retc != 0)
     {
@@ -116,9 +108,10 @@ int main(void)
             ;
         }
     }
-
+#else
     void rusty_entry(void);
     rusty_entry();
+#endif
 
     /* Start the FreeRTOS scheduler */
     vTaskStartScheduler();
