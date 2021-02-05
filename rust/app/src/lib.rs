@@ -88,12 +88,13 @@ fn print(message : &str)
 }
 
 static LOG_ERROR : fn(&str)->() = print;
+static LOG_INFO : fn(&str)->() = print;
 static CONFIG_GPIO_LED_0 : u32 = 2;
 static CONFIG_GPIO_LED_1 : u32 = 3;
 static CONFIG_GPIO_LED_2 : u32 = 4;
 static CONFIG_GPIO_LED_OFF : u32 = 0;
 static MQTT_QOS_2 : u32 = 2;
-static NULL : *const u8 = 0 as *const u8;
+
 
 #[no_mangle]
 pub extern "C" fn rusty_entry() {
@@ -102,16 +103,63 @@ pub extern "C" fn rusty_entry() {
     }).unwrap();
 }
 
-fn MQTT_EventCallback() {
-
+enum MqttEvents {
+    MQTT_EVENT_CONNACK,
+    MQTT_EVENT_SUBACK,
+    MQTT_EVENT_PUBACK,
+    MQTT_EVENT_UNSUBACK,
+    MQTT_EVENT_SERVER_DISCONNECT,
+    MQTT_EVENT_CLIENT_DISCONNECT,
+    MQTT_EVENT_DESTROY,
+    MQTT_EVENT_MAX
 }
 
-fn TopicCallback() {
+fn MQTT_EventCallback(event : i32) {
+
+    match event {
+
+        MQTT_EVENT_CONNACK =>
+            LOG_INFO("MQTT_EVENT_CONNACK\r\n"),
+
+        MQTT_EVENT_SUBACK =>
+            LOG_INFO("MQTT_EVENT_SUBACK\r\n"),
+
+        MQTT_EVENT_PUBACK =>
+            LOG_INFO("MQTT_EVENT_PUBACK\r\n"),
+
+        MQTT_EVENT_UNSUBACK =>
+            LOG_INFO("MQTT_EVENT_UNSUBACK\r\n"),
+
+        MQTT_EVENT_CLIENT_DISCONNECT =>
+            LOG_INFO("MQTT_EVENT_CLIENT_DISCONNECT\r\n"),
+
+        MQTT_EVENT_SERVER_DISCONNECT =>
+            LOG_INFO("MQTT_EVENT_SERVER_DISCONNECT\r\n"),
+
+        MQTT_EVENT_DESTROY =>
+            LOG_INFO("MQTT_EVENT_DESTROY\r\n"),
+    }
+}
+
+fn TopicCallback(topic : *const u8, payload : *const u8) {
+
+    print("TopicCallback");
 
 }
 
 
 fn main_thread () {
+    
+    let NULL : *const u8 = 0 as *const u8;
+    let mut client_id_buffer : [u8; 15] = [0 ; 15];
+    
+    let CLIENT_WILL : MQTTClient_Will = MQTTClient_Will
+    {
+        willTopic : "jesus_cc32xx_will_topic\0".as_ptr(), /* Will Topic   */
+        willMsg : "will_msg_works\0".as_ptr(),   /* Will message */
+        willQos : MQTT_QOS_2 as i8,   /* Will Qos     */
+        retain : false,    /* Retain Flag  */
+    };
 
     unsafe {
         uartHandle = InitTerm();
@@ -161,14 +209,14 @@ fn main_thread () {
 
         let mqttClientParams = MQTT_IF_ClientParams
         {
-            clientID : &[u8, 16],
+            clientID : client_id_buffer.as_ptr(),
             username : NULL,
             password : NULL,
             keepaliveTime : 0,
             cleanConnect : true,
             mqttMode31 : true,     // false 3.1.1 (default) : true 3.1
             blockingSend : true,
-            willParams : *const MQTTClient_Will,
+            willParams : &CLIENT_WILL,
         };
 
         let mqttConnParams = MQTTClient_ConnParams
@@ -180,7 +228,7 @@ fn main_thread () {
             cipher : 0,
             nFiles : 0,
             secureFiles : NULL,
-        }
+        };
 
         if MQTT_IF_Connect(mqttClientParams, mqttConnParams, MQTT_EventCallback) < 0 {
             LOG_ERROR("MQTT_IF_Connect Failed\n\r");
